@@ -49,7 +49,7 @@ public class User extends Auditable implements UserDetails {
     @Size(max = 50, message = "Last name must not exceed 50 characters")
     private String lastName;
 
-    @Column
+    @Column(unique = true, nullable = false)
     private String phoneNumber;
 
     @Column

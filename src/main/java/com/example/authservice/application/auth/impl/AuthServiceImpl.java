@@ -172,17 +172,27 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional(readOnly = true)
     public UserResponse getUserByFilter(String email, String phoneNumber) {
-        if (email != null && !email.isBlank()) {
-            User user = userRepository.findByEmail(email)
-                    .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
-            return mapToUserResponse(user);
-        } else if (phoneNumber != null && !phoneNumber.isBlank()) {
-            User user = userRepository.findByPhoneNumber(phoneNumber)
-                    .orElseThrow(() -> new IllegalArgumentException("User not found with phone number: " + phoneNumber));
-            return mapToUserResponse(user);
-        } else {
+        if ((email == null || email.isBlank()) && (phoneNumber == null || phoneNumber.isBlank())) {
             throw new IllegalArgumentException("Either email or phoneNumber must be provided");
         }
+
+        Optional<User> userOptional;
+
+        if (email != null && !email.isBlank() && phoneNumber != null && !phoneNumber.isBlank()) {
+            // Fetch by both email AND phone number
+            userOptional = userRepository.findByEmailAndPhoneNumber(email, phoneNumber);
+        } else if (email != null && !email.isBlank()) {
+            // Fetch by email only
+            userOptional = userRepository.findByEmail(email);
+        } else {
+            // Fetch by phone number only
+            userOptional = userRepository.findByPhoneNumber(phoneNumber);
+        }
+
+        User user = userOptional.orElseThrow(() ->
+                new IllegalArgumentException("User not found with provided parameters"));
+
+        return mapToUserResponse(user);
     }
 
     private UserResponse mapToUserResponse(User user) {
