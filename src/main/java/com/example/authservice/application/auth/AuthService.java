@@ -5,7 +5,7 @@ import com.example.authservice.web.dto.*;
 import java.util.List;
 
 public interface AuthService {
-    void register(RegisterRequest req);
+    UserResponse register(RegisterRequest req);
 
     JwtResponse login(LoginRequest req);
 

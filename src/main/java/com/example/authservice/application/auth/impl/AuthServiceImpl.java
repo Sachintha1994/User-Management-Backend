@@ -41,11 +41,16 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public void register(RegisterRequest request) {
+    public UserResponse register(RegisterRequest request) {
+        // Check if email or phone number already exists
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new IllegalArgumentException("Email already registered");
         }
+        if (userRepository.existsByPhoneNumber(request.getPhoneNumber())) {
+            throw new IllegalArgumentException("Phone number already registered");
+        }
 
+        // Create new user
         User user = new User();
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -54,11 +59,15 @@ public class AuthServiceImpl implements AuthService {
         user.setPhoneNumber(request.getPhoneNumber());
         user.setDateOfBirth(request.getDateOfBirth());
         user.setAddress(request.getAddress());
-        user.setRole(UserRoles.USER);
+        user.setRole(UserRoles.USER);   // assign USER role
         user.setEmailVerified(false);
         user.setAccountLocked(false);
 
+        // Save user
         userRepository.save(user);
+
+        // Convert to UserResponse DTO before returning
+        return mapToUserResponse(user);
     }
 
     @Override

@@ -19,10 +19,11 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody @Valid RegisterRequest request) {
-        authService.register(request);
+    public ResponseEntity<BaseResponse<UserResponse>> register(@RequestBody @Valid RegisterRequest request) {
+        UserResponse newUser = authService.register(request); // Make sure service returns UserResponse
+
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body("User registered successfully. Please verify your email.");
+                .body(BaseResponse.success("User registered successfully. Please verify your email.", newUser));
     }
 
     @PostMapping("/login")
